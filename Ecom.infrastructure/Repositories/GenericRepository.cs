@@ -53,14 +53,8 @@ namespace Ecom.infrastructure.Repositories
 
         public async Task<T> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
         {
-            var query = _Context.Set<T>().AsQueryable();
-            foreach (var item in includes)
-            {
-                query = query.Include(item);
-            }
-            var entity = await query.FirstOrDefaultAsync(x=>EF.Property<int>(x,"Id")==id);
+            var entity = await _Context.Set<T>().FindAsync(id);
             return entity;
-
         }
 
         public async Task UpdateAsync(T entity)

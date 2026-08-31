@@ -1,4 +1,6 @@
 
+using AutoMapper;
+using Ecom.API.Mapping;
 using Ecom.infrastructure;
 
 namespace Ecom.API
@@ -16,6 +18,11 @@ namespace Ecom.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.infrastructureConfiguration(builder.Configuration);
+
+            builder.Services.AddAutoMapper(cfg =>
+            {
+            }, typeof(CategoryMapping).Assembly);
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

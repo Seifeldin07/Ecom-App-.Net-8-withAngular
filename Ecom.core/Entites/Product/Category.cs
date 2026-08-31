@@ -12,6 +12,6 @@ namespace Ecom.core.Entites.Product
 
         public string Description { get; set; }
 
-        public ICollection<Product> Products { get; set; }= new List<Product>();
+       // public ICollection<Product> Products { get; set; }= new List<Product>();
     }
 }
