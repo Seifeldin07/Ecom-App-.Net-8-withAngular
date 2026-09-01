@@ -15,6 +15,7 @@
                 200 => "Done",
                 400 => "BadRequest",
                 401 => "Un Athorized",
+                404 => "Resource Not Found ",
                 500 => "Server Erorr",
                 _=>null,
             };

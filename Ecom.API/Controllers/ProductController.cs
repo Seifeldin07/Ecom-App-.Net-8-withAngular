@@ -15,11 +15,11 @@ namespace Ecom.API.Controllers
         {
         }
         [HttpGet("get-all")]
-        public async Task<IActionResult>get()
+        public async Task<IActionResult> get()
         {
             try
             {
-                var product =await  _work.productRepository.GetAllAsync(x=>x.Category,x=>x.Photos);
+                var product = await _work.productRepository.GetAllAsync(x => x.Category, x => x.Photos);
                 var result = _mapper.Map<List<ProductDTO>>(product);
                 if (product is null)
                 {
@@ -51,7 +51,7 @@ namespace Ecom.API.Controllers
             }
         }
         [HttpPost("Add-product")]
-        public async Task<IActionResult>Add(AddProductDTO productDTO)
+        public async Task<IActionResult> Add(AddProductDTO productDTO)
         {
             try
             {
@@ -61,16 +61,16 @@ namespace Ecom.API.Controllers
             catch (Exception ex)
             {
 
-                return BadRequest(new ResponseAPI( 400,ex.Message));
+                return BadRequest(new ResponseAPI(400, ex.Message));
             }
         }
 
         [HttpPut("Update-Product")]
-        public async Task<IActionResult>Update(UpdateProductDTO updateProductDTO)
+        public async Task<IActionResult> Update(UpdateProductDTO updateProductDTO)
         {
             try
             {
-                await _work.productRepository .UpdateAsync(updateProductDTO);
+                await _work.productRepository.UpdateAsync(updateProductDTO);
                 return Ok(new ResponseAPI(200));
             }
             catch (Exception ex)
@@ -79,6 +79,22 @@ namespace Ecom.API.Controllers
                 return BadRequest(new ResponseAPI(400, ex.Message));
             }
         }
+        [HttpDelete("Delete-Product/{Id}")]
+        public async Task<IActionResult> delete(int Id)
+        {
+            try
+            {
+                var product = await _work.productRepository
+                    .GetByIdAsync(Id,x=>x.Photos,x=>x.Category);
+                await _work.productRepository.DeleteAsync(product);
+                return Ok(new ResponseAPI(200));
+            }
+            catch (Exception ex)
+            {
 
+                return BadRequest(new ResponseAPI(400, ex.Message));
+                
+            }
+        }
     }
 }
