@@ -23,6 +23,10 @@ namespace Ecom.infrastructure.Repositories
             await _Context.SaveChangesAsync();
         }
 
+        public async Task<int> CountAsync()
+            =>await  _Context.Set<T>().CountAsync();
+        
+
         public async Task DeleteAsync(int id)
         {
             var entity = await _Context.Set<T>().FindAsync(id);
@@ -51,12 +55,25 @@ namespace Ecom.infrastructure.Repositories
             return entity;
         }
 
+        //public async Task<T> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
+        //{
+        //    var entity = await _Context.Set<T>().FindAsync(id);
+        //    return entity;
+        //}
         public async Task<T> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
         {
-            var entity = await _Context.Set<T>().FindAsync(id);
-            return entity;
-        }
+            IQueryable<T> query = _Context.Set<T>();
 
+            if (includes != null && includes.Any())
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
+        }
         public async Task UpdateAsync(T entity)
         {
             _Context.Entry(entity).State = EntityState.Modified;

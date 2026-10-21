@@ -3,6 +3,7 @@ using Ecom.core.DTO;
 using Ecom.core.Entites.Product;
 using Ecom.core.Interfaces;
 using Ecom.core.services;
+using Ecom.core.sharing;
 using Ecom.infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -23,6 +24,47 @@ namespace Ecom.infrastructure.Repositories
             this.context = context;
             _mapper = mapper;
             this.imageManagmentService = imageManagmentService;
+        }
+
+        public async Task<ReturnProductDTO>GetAllAsync(productparams productparams)
+        {
+            var query = context.Products
+                .Include(x=> x.Category)
+                .Include(x => x.Photos)
+                .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(productparams.Search))
+            {
+                var searchWords= productparams.Search.Split(' ');
+                query = query.Where(m => searchWords.All(word =>
+                
+                m.Name.ToLower().Contains(word.ToLower())||
+                m.Description.ToLower().Contains(word.ToLower())
+                ));
+            }
+            
+
+            if (productparams.CategoryId.HasValue && productparams.CategoryId.Value != 0)
+            {
+                query = query.Where(m => m.CategoryId == productparams.CategoryId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(productparams.Sort))
+            {
+                query = productparams.Sort switch
+                {
+                    "priceAsc" => query.OrderBy(m => m.NewPrice),
+                    "priceDesc" => query.OrderByDescending(m => m.NewPrice),
+                    _ => query.OrderBy(m => m.Name),
+                };
+            }
+            ReturnProductDTO returnProductDTO = new ReturnProductDTO();
+            returnProductDTO.TotalCount = query.Count();
+          
+            query = query.Skip((productparams.pagesize) * (productparams.pageNumber - 1)).Take(productparams.pagesize);
+
+            returnProductDTO.products =_mapper.Map<List<ProductDTO>>(query); 
+            return returnProductDTO;
         }
 
         public async Task<bool> AddAsync(AddProductDTO productDTO)
@@ -77,6 +119,8 @@ namespace Ecom.infrastructure.Repositories
             await context.SaveChangesAsync();
             return true;
         }
+
+
         public async Task DeleteAsync(Product product)
         {
             var Photo = await context.Photos.Where(m=>m.ProductId==product.Id).ToListAsync();
@@ -88,5 +132,6 @@ namespace Ecom.infrastructure.Repositories
             await context.SaveChangesAsync();
         }
 
+      
     }
 }
